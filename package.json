@@ -11,6 +11,7 @@
   "dependencies": {
     "@hookform/resolvers": "^3.1.0",
     "@radix-ui/colors": "^0.1.8",
+    "@radix-ui/react-aspect-ratio": "^1.0.2",
     "@stitches/react": "^1.2.8",
     "@tanstack/react-query": "^4.28.0",
     "@trpc/client": "^10.19.1",

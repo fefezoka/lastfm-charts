@@ -17,15 +17,9 @@ export const appRouter = router({
     .input(
       z.object({
         username: z.string(),
-        type: z.enum(['albums', 'tracks', 'artists']).optional().default('albums'),
-        period: z
-          .enum(['7day', '1month', '3month', '6month', '1year', 'overall'])
-          .optional()
-          .default('7day'),
-        format: z
-          .enum(['3x3', '4x4', '5x4', '5x5', '6x6', '8x6', '8x8', '10x10'])
-          .optional()
-          .default('4x4'),
+        type: z.enum(['albums', 'tracks', 'artists']),
+        period: z.enum(['7day', '1month', '3month', '6month', '1year', 'overall']),
+        format: z.enum(['3x3', '4x4', '5x4', '5x5', '6x6', '8x6', '8x8', '10x10']),
       })
     )
     .query(async ({ input }) => {

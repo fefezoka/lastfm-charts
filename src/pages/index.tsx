@@ -1,10 +1,11 @@
 import React, { useEffect, useId } from 'react';
 import Link from 'next/link';
 import { z } from 'zod';
+import { FaGithub } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import { Control, useForm, FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Box, Button, Flex, Grid, Heading, Input, Select } from '@styles';
+import { Box, Button, Flex, Grid, Heading, Input, Select, Text } from '@styles';
 
 const formSchema = z.object({
   username: z.string().nonempty(),
@@ -162,6 +163,12 @@ export default function Home() {
         <Button type="submit" css={{ mt: '$4', width: '100%', height: 44 }}>
           Enviar
         </Button>
+        <Flex css={{ mt: '$3' }} align={'center'} justify={'center'} gap={'2'}>
+          <Text color={'gray'}>Feito por Felipe Brito</Text>
+          <Link target="_blank" href={'https://github.com/fefezoka/lastfmcharts'}>
+            <FaGithub />
+          </Link>
+        </Flex>
       </Box>
     </Flex>
   );
