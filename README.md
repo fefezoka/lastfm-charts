@@ -1,13 +1,13 @@
-# Show Maker
+# Lastfm Charts
 
-Rede social focada na postagem de melhores momentos em jogos online.
+Site para gerar charts personalizadas com base nas suas músicas escutadas
 
 ## Rodando localmente
 
 Clonando o projeto e instalando as dependências
 
 ```bash
-  git clone https://github.com/fefezoka/showmaker
+  git clone https://github.com/fefezoka/lastfmcharts
   cd showmaker
   npm install
 ```
@@ -26,8 +26,6 @@ Configurando o arquivo .env.example e iniciando o projeto
 
 - [Next JS](https://github.com/vercel/next.js/)
 - [Typescript](https://github.com/microsoft/TypeScript)
-- [Prisma](https://github.com/prisma/prisma) - ORM
-- [MongoDB](https://github.com/mongodb/mongo)
 
 ## Bibliotecas
 
@@ -35,17 +33,3 @@ Configurando o arquivo .env.example e iniciando o projeto
 - [Stitches](https://github.com/stitchesjs/stitches) - CSS in JS
 - [React Hook Form](https://github.com/react-hook-form) - Validação de formulários
 - [Zod](https://github.com/colinhacks/zod) - Criação de schemas e validação
-- [Radix](https://github.com/radix-ui) - Componentes UI acessíveis
-- [Next Auth](https://github.com/nextauthjs/next-auth) - Autenticação
-
-## Funcionalidades
-
-- **Autenticação**
-- **Criar, editar, excluir, comentar e favoritar posts**
-- **Feed de posts**
-- **Mecanismo de busca por posts e usuários**
-- **Download dos vídeos**
-- **Perfil de usuário**
-- **Seguir usuários**
-- **Listagem de seguindo e seguidores**
-- **Página de configurações** Nessa aba é possível conectar sua conta com alguns providers (twitch e osu) que aparecerão no perfil do usuário
