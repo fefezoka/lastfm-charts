@@ -17,19 +17,22 @@ export const appRouter = router({
     .input(
       z.object({
         username: z.string(),
-        type: z.enum(['albums', 'tracks', 'artists']),
-        period: z.enum(['7day', '1month', '3month', '6month', '1year', 'overall']),
-        format: z.enum(['3x3', '4x4', '5x4', '5x5', '6x6', '8x6', '8x8', '10x10']),
+        type: z.enum(['albums', 'tracks']),
+        period: z.enum(['7day', '1month', '3month', '6month', '12month', 'overall']),
       })
     )
     .query(async ({ input }) => {
       const data = await lastfm.get(
-        `?method=user.gettop${input.type}&user=${input.username}&limit=${eval(
-          input.format.replace('x', '*')
-        )}&period=${input.period}&api_key=${process.env.LASTFM_KEY}&format=json`
+        `?method=user.gettop${input.type}&user=${input.username}&limit=10
+        &period=${input.period}&api_key=${process.env.LASTFM_KEY}&format=json`
       );
+      const chart: [] =
+        data.data['top' + input.type][input.type.slice(0, input.type.length - 1)];
+
+      const scrobbles = chart.reduce((acc, curr: any) => acc + Number(curr.playcount), 0);
       return {
-        chart: data.data['top' + input.type][input.type.slice(0, input.type.length - 1)],
+        chart,
+        scrobbles,
       };
     }),
 });
