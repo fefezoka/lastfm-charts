@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import htmltocanvas from 'html2canvas';
 import { FormData } from './index';
 import { useRouter } from 'next/router';
 import { BsArrowLeft } from 'react-icons/bs';
 import { HiOutlineDownload } from 'react-icons/hi';
 import { trpc } from '@utils';
-import { Box, Flex, Heading, ProfileIcon, Text } from '@styles';
 import { GetServerSideProps } from 'next';
-import htmltocanvas from 'html2canvas';
+import { Box, Flex, Heading, ProfileIcon, Text } from '@styles';
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { username, period, type } = ctx.query as FormData;
@@ -31,7 +32,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 };
 
 export default function Profile({ username, period, type }: FormData) {
-  const [img, setImg] = useState<string>();
   const [previousChart, setPreviousChart] = useState<Record<string, number>>();
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -67,14 +67,13 @@ export default function Profile({ username, period, type }: FormData) {
 
     htmltocanvas(ref.current, { windowHeight: 1080, windowWidth: 1920 }).then(
       (canvas) => {
-        !img && setImg(canvas.toDataURL());
         const link = document.createElement('a');
         link.download = `${username}_${type}_${period}`;
-        link.href = img || canvas.toDataURL();
+        link.href = canvas.toDataURL();
         link.click();
       }
     );
-  }, [ref, img, period, type, username]);
+  }, [ref, period, type, username]);
 
   if (!chart) {
     return <></>;
@@ -93,6 +92,7 @@ export default function Profile({ username, period, type }: FormData) {
           bc: '$bg1',
           maxWidth: '100%',
           px: '$3',
+          pb: '$3',
         }}
       >
         <Heading size="4" color={'red'} css={{ ta: 'center' }}>
@@ -125,8 +125,8 @@ export default function Profile({ username, period, type }: FormData) {
           <Box as={'thead'} css={{ ta: 'left' }}>
             <Box as={'tr'}>
               <Box as={'th'} />
-              <Box as={'th'}>{type === 'albums' ? 'Album' : 'Song'}</Box>
-              <Box as={'th'}>Artist</Box>
+              <Box as={'th'}>{type === 'albums' ? 'ALBUM' : 'SONG'}</Box>
+              <Box as={'th'}>ARTIST</Box>
             </Box>
           </Box>
           <Box as={'tbody'}>
@@ -136,32 +136,31 @@ export default function Profile({ username, period, type }: FormData) {
                 key={item.name}
                 css={{
                   bc: index % 2 === 0 ? '$bg2' : '$bg3',
-                  '& td': { p: '$2', borderLeft: '1px solid $bg1' },
+                  '& td': { px: '$2', height: 42, borderLeft: '1px solid $bg1' },
                 }}
               >
                 <Box as={'td'}>
                   <Flex justify={'between'} align={'center'} gap={'2'}>
                     {previousChart?.[item.url] ? (
                       previousChart[item.url] < item.playcount ? (
-                        <Text size={'1'} color={'green'}>
+                        <Text size={'2'} color={'green'}>
                           (+{item.playcount - previousChart[item.url]})
                         </Text>
                       ) : (
-                        <Text size={'1'}>(=)</Text>
+                        <Text size={'2'}>(=)</Text>
                       )
                     ) : (
-                      <Text size={'1'} color={'gold'}>
+                      <Text size={'2'} color={'gold'}>
                         (NEW)
                       </Text>
                     )}
                     <Link
-                      href={`${user.url}/library/music/${item.artist.name.replace(
-                        ' ',
-                        '+'
-                      )}/${item.name.replace(' ', '+')}`}
+                      href={`${user.url}/library/music/${
+                        item.url.split('https://www.last.fm/music/')[1]
+                      }`}
                       target="_blank"
                     >
-                      <Text size={'3'} color={'red'}>
+                      <Text size={'4'} color={'red'}>
                         {item.playcount}
                       </Text>
                     </Link>
@@ -177,17 +176,28 @@ export default function Profile({ username, period, type }: FormData) {
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  <Text size={'5'} weight={600}>
-                    <Link href={item.url} target="_blank">
-                      {item.name}
-                    </Link>
-                  </Text>
+                  <Link href={item.url} target="_blank">
+                    <Flex align={'center'} gap={'2'}>
+                      {type === 'albums' && (
+                        <Image
+                          src={item.image[3]['#text']}
+                          alt=""
+                          width={42}
+                          height={42}
+                        />
+                      )}
+
+                      <Text size={'5'} weight={600}>
+                        {item.name}
+                      </Text>
+                    </Flex>
+                  </Link>
                 </Box>
                 <Box
                   as={'td'}
                   css={{
-                    minWidth: 180,
-                    maxWidth: 180,
+                    minWidth: 170,
+                    maxWidth: 170,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
@@ -202,11 +212,7 @@ export default function Profile({ username, period, type }: FormData) {
           </Box>
         </Box>
       </Box>
-      <Flex
-        gap={'4'}
-        css={{ '& svg': { cursor: 'pointer' }, mt: '$2' }}
-        justify={'center'}
-      >
+      <Flex gap={'4'} css={{ '& svg': { cursor: 'pointer' } }} justify={'center'}>
         <BsArrowLeft size={36} onClick={() => router.push('/')} />
         <HiOutlineDownload size={36} onClick={downloadChart} />
       </Flex>
