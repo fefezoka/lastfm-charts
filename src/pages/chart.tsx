@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { toPng } from 'html-to-image';
 import { FormData } from './index';
 import { useRouter } from 'next/router';
 import { BsArrowLeft } from 'react-icons/bs';
@@ -8,6 +7,7 @@ import { HiOutlineDownload } from 'react-icons/hi';
 import { trpc } from '@utils';
 import { Box, Flex, Heading, ProfileIcon, Text } from '@styles';
 import { GetServerSideProps } from 'next';
+import htmltocanvas from 'html2canvas';
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { username, period, type } = ctx.query as FormData;
@@ -65,17 +65,15 @@ export default function Profile({ username, period, type }: FormData) {
       return;
     }
 
-    toPng(ref.current, { cacheBust: true })
-      .then((dataUrl) => {
-        !img && setImg(dataUrl);
+    htmltocanvas(ref.current, { windowHeight: 1080, windowWidth: 1920 }).then(
+      (canvas) => {
+        !img && setImg(canvas.toDataURL());
         const link = document.createElement('a');
         link.download = `${username}_${type}_${period}`;
-        link.href = img || dataUrl;
+        link.href = img || canvas.toDataURL();
         link.click();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      }
+    );
   }, [ref, img, period, type, username]);
 
   if (!chart) {
@@ -87,9 +85,16 @@ export default function Profile({ username, period, type }: FormData) {
       justify={'center'}
       align={'center'}
       direction={'column'}
-      css={{ height: '100vh', width: '100%', bc: '$bg1' }}
+      css={{ height: '100vh', bc: '$bg1' }}
     >
-      <Box ref={ref} css={{ bc: '$bg1' }}>
+      <Box
+        ref={ref}
+        css={{
+          bc: '$bg1',
+          maxWidth: '100%',
+          px: '$3',
+        }}
+      >
         <Heading size="4" color={'red'} css={{ ta: 'center' }}>
           Last.fm Charts
         </Heading>
@@ -106,7 +111,17 @@ export default function Profile({ username, period, type }: FormData) {
         <Heading css={{ ta: 'center' }}>
           {type} - {period}
         </Heading>
-        <Box as={'table'} css={{ borderCollapse: 'collapse', mt: '$2' }}>
+        <Box
+          as={'table'}
+          css={{
+            display: 'block',
+            borderCollapse: 'collapse',
+            mt: '$2',
+            overflow: 'auto',
+            '&::-webkit-scrollbar': { display: 'none' },
+            whiteSpace: 'nowrap',
+          }}
+        >
           <Box as={'thead'} css={{ ta: 'left' }}>
             <Box as={'tr'}>
               <Box as={'th'} />
@@ -155,8 +170,8 @@ export default function Profile({ username, period, type }: FormData) {
                 <Box
                   as={'td'}
                   css={{
-                    display: 'block',
-                    width: 280,
+                    minWidth: 280,
+                    maxWidth: 280,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
@@ -168,7 +183,16 @@ export default function Profile({ username, period, type }: FormData) {
                     </Link>
                   </Text>
                 </Box>
-                <Box as={'td'} css={{ width: 180 }}>
+                <Box
+                  as={'td'}
+                  css={{
+                    minWidth: 180,
+                    maxWidth: 180,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   <Link href={item.artist.url} target="_blank">
                     <Text size={'5'}>{item.artist.name}</Text>
                   </Link>
