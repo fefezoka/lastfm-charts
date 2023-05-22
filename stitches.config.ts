@@ -87,7 +87,6 @@ export const {
       discord: '#5662f6',
     },
     fontSizes: {
-      0: '9px',
       1: '11px',
       2: '13px',
       3: '14px',
@@ -96,7 +95,8 @@ export const {
       6: '18px',
       7: '20px',
       8: '28px',
-      9: '48px',
+      9: '36px',
+      10: '48px',
     },
     zIndices: {
       header: 9,

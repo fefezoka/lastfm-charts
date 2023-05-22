@@ -43,6 +43,11 @@ export const Text = styled('span', {
         letterSpacing: '-.032em',
         textIndent: '-.020em',
       },
+      '10': {
+        fontSize: '$10',
+        letterSpacing: '-.032em',
+        textIndent: '-.020em',
+      },
     },
     weight: {
       400: {

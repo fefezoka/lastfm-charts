@@ -17,7 +17,13 @@ export type FormData = z.infer<typeof formSchema>;
 
 export default function Home() {
   const router = useRouter();
-  const { register, setValue, handleSubmit, watch } = useForm<FormData>({
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<FormData>({
     resolver: zodResolver(formSchema),
   });
 
@@ -50,10 +56,10 @@ export default function Home() {
       align={'center'}
       direction={'column'}
       justify={'center'}
-      css={{ height: '100vh', px: '$4' }}
+      css={{ height: '100vh', px: '$6' }}
       onSubmit={handleSubmit(handleGenerateChart)}
     >
-      <Heading gradient size="4" color={'red'}>
+      <Heading gradient size="5" color={'red'}>
         Last.fm Charts
       </Heading>
       <Box css={{ ta: 'center' }}>
@@ -71,17 +77,24 @@ export default function Home() {
         as={'form'}
         css={{
           mt: 32,
+          width: '100%',
           '@bp2': {
             width: 333,
           },
         }}
       >
         <Box>
-          <Heading>Type your last.fm username</Heading>
+          <Flex justify={'between'} align={'center'}>
+            <Heading>Type your last.fm username</Heading>
+            {errors.username && <Text color={'red'}>* Required</Text>}
+          </Flex>
           <Input {...register('username')} css={{ width: '100%', mt: '$1' }} />
         </Box>
         <Box css={{ mt: '$3' }}>
-          <Heading>Chart type</Heading>
+          <Flex justify={'between'} align={'center'}>
+            <Heading>Chart type</Heading>
+            {errors.type && <Text color={'red'}>* Required</Text>}
+          </Flex>
           <Grid columns={'2'} gap={'3'} css={{ mt: '$1' }} justify={'between'}>
             <Button
               active={watch('type') === 'albums'}
@@ -99,7 +112,10 @@ export default function Home() {
           </Grid>
         </Box>
         <Box css={{ mt: '$3' }}>
-          <Heading>Chart period</Heading>
+          <Flex justify={'between'} align={'center'}>
+            <Heading>Chart period</Heading>
+            {errors.period && <Text color={'red'}>* Required</Text>}
+          </Flex>
           <Grid columns={'3'} css={{ mt: '$1' }} gap={'3'} justify={'between'}>
             <Button
               active={watch('period') === '7day'}

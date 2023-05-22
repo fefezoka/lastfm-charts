@@ -65,14 +65,16 @@ export default function Profile({ username, period, type }: FormData) {
       return;
     }
 
-    htmltocanvas(ref.current, { windowHeight: 1080, windowWidth: 1920 }).then(
-      (canvas) => {
-        const link = document.createElement('a');
-        link.download = `${username}_${type}_${period}`;
-        link.href = canvas.toDataURL();
-        link.click();
-      }
-    );
+    htmltocanvas(ref.current, {
+      scale: 2.33,
+      windowHeight: 1080,
+      windowWidth: 1920,
+    }).then((canvas) => {
+      const link = document.createElement('a');
+      link.download = `${username}_${type}_${period}`;
+      link.href = canvas.toDataURL();
+      link.click();
+    });
   }, [ref, period, type, username]);
 
   if (!chart) {
@@ -92,10 +94,25 @@ export default function Profile({ username, period, type }: FormData) {
           bc: '$bg1',
           maxWidth: '100%',
           px: '$3',
-          pb: '$3',
+          p: '$3',
+          position: 'relative',
         }}
       >
-        <Heading size="4" color={'red'} css={{ ta: 'center' }}>
+        <Box
+          data-html2canvas-ignore
+          as={'button'}
+          css={{ position: 'absolute', '@bp2': { top: 32 }, left: 16 }}
+        >
+          <BsArrowLeft size={36} onClick={() => router.push('/')} />
+        </Box>
+        <Box
+          data-html2canvas-ignore
+          as={'button'}
+          css={{ position: 'absolute', '@bp2': { top: 32 }, right: 16 }}
+        >
+          <HiOutlineDownload size={36} onClick={downloadChart} />
+        </Box>
+        <Heading size="5" color={'red'} css={{ ta: 'center' }}>
           Last.fm Charts
         </Heading>
         <Link target="_blank" href={'https://last.fm/user/' + user.name}>
@@ -109,7 +126,12 @@ export default function Profile({ username, period, type }: FormData) {
           </Flex>
         </Link>
         <Heading css={{ ta: 'center' }}>
-          {type} - {period}
+          {type.charAt(0).toUpperCase() + type.slice(1, type.length)} -{' '}
+          {period !== 'overall'
+            ? `${period.charAt(0)} ${period.slice(1, period.length)}${
+                period !== '1month' ? 's' : ''
+              }`
+            : period.charAt(0).toUpperCase() + period.slice(1, period.length)}
         </Heading>
         <Box
           as={'table'}
@@ -119,7 +141,6 @@ export default function Profile({ username, period, type }: FormData) {
             mt: '$2',
             overflow: 'auto',
             '&::-webkit-scrollbar': { display: 'none' },
-            whiteSpace: 'nowrap',
           }}
         >
           <Box as={'thead'} css={{ ta: 'left' }}>
@@ -180,7 +201,7 @@ export default function Profile({ username, period, type }: FormData) {
                     <Flex align={'center'} gap={'2'}>
                       {type === 'albums' && (
                         <Image
-                          src={item.image[3]['#text']}
+                          src={item.image[2]['#text']}
                           alt=""
                           width={42}
                           height={42}
@@ -212,10 +233,6 @@ export default function Profile({ username, period, type }: FormData) {
           </Box>
         </Box>
       </Box>
-      <Flex gap={'4'} css={{ '& svg': { cursor: 'pointer' } }} justify={'center'}>
-        <BsArrowLeft size={36} onClick={() => router.push('/')} />
-        <HiOutlineDownload size={36} onClick={downloadChart} />
-      </Flex>
     </Flex>
   );
 }
