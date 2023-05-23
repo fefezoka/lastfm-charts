@@ -1,7 +1,8 @@
 import Image from 'next/image';
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef } from 'react';
 import { CSS } from 'stitches.config';
 import { Box } from '@styles';
+import { avatarFallback } from '@assets';
 
 interface ProfileIconProps extends React.ComponentProps<typeof Image> {
   src: string;
@@ -10,8 +11,6 @@ interface ProfileIconProps extends React.ComponentProps<typeof Image> {
 
 export const ProfileIcon = forwardRef<HTMLImageElement, ProfileIconProps>(
   ({ src, css, ...props }: ProfileIconProps, forwardedRef) => {
-    const [error, setError] = useState(false);
-
     return (
       <Box
         css={{
@@ -25,11 +24,10 @@ export const ProfileIcon = forwardRef<HTMLImageElement, ProfileIconProps>(
       >
         <Image
           ref={forwardedRef}
-          src={!error ? src : 'https://cdn.discordapp.com/embed/avatars/0.png'}
+          src={src || avatarFallback.src}
           {...props}
           fill
           alt=""
-          onError={() => setError(true)}
         />
       </Box>
     );

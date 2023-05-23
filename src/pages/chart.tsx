@@ -243,7 +243,7 @@ export default function Profile({ username, period, type }: FormData) {
                     <Flex align={'center'} gap={'2'}>
                       {type === 'albums' && (
                         <Box css={{ size: 34, position: 'relative', fs: 0 }}>
-                          <Image src={item.image[0]['#text']} alt="" fill />
+                          <Image src={item.image[0]['#text']} alt="" fill priority />
                         </Box>
                       )}
 

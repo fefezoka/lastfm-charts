@@ -13,9 +13,9 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
         title="Last Charts"
         openGraph={{
           images: [{ url: yunjin.src }],
-          siteName: 'Last Charts',
+          siteName: 'Last.fm Charts',
           description: 'Usa ai po',
-          url: 'https://show-maker.vercel.app',
+          url: 'https://lastfmcharts.vercel.app',
           type: 'website',
         }}
         twitter={{ cardType: 'summary_large_image' }}
