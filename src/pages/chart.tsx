@@ -39,7 +39,7 @@ export default function Profile({ username, period, type }: FormData) {
   const { data: chart } = trpc.chart.useQuery(
     { username, period, type },
     {
-      staleTime: 60 * 2.5,
+      staleTime: 1000 * 60 * 2.5,
       onSuccess: (data) => {
         window.localStorage.setItem(
           `${username}_${type}_${period}`,
@@ -55,6 +55,8 @@ export default function Profile({ username, period, type }: FormData) {
     }
   );
 
+  console.log(chart);
+
   useEffect(() => {
     const data = window.localStorage.getItem(`${username}_${type}_${period}`);
     data && setPreviousChart(JSON.parse(data));
@@ -68,6 +70,8 @@ export default function Profile({ username, period, type }: FormData) {
     htmltocanvas(ref.current, {
       scale: 2.33,
       windowHeight: 1080,
+      allowTaint: false,
+      useCORS: true,
       windowWidth: 1920,
     }).then((canvas) => {
       const link = document.createElement('a');
@@ -101,22 +105,32 @@ export default function Profile({ username, period, type }: FormData) {
         <Box
           data-html2canvas-ignore
           as={'button'}
-          css={{ position: 'absolute', '@bp2': { top: 32 }, left: 16 }}
+          css={{ position: 'absolute', top: 20, left: 8 }}
         >
           <BsArrowLeft size={36} onClick={() => router.push('/')} />
         </Box>
         <Box
           data-html2canvas-ignore
           as={'button'}
-          css={{ position: 'absolute', '@bp2': { top: 32 }, right: 16 }}
+          css={{ position: 'absolute', top: 20, right: 8 }}
         >
           <HiOutlineDownload size={36} onClick={downloadChart} />
         </Box>
-        <Heading size="5" color={'red'} css={{ ta: 'center' }}>
+        <Text
+          size={'10'}
+          color={'red'}
+          weight={'500'}
+          css={{ ta: 'center', display: 'block' }}
+        >
           Last.fm Charts
-        </Heading>
+        </Text>
         <Link target="_blank" href={'https://last.fm/user/' + user.name}>
-          <Flex justify={'center'} align={'center'} gap={'6'} css={{ my: '$2' }}>
+          <Flex
+            justify={'center'}
+            align={'center'}
+            gap={'6'}
+            css={{ mt: '$3', mb: '$2' }}
+          >
             <ProfileIcon src={user.image[3]['#text']} alt="" css={{ size: 60 }} />
             <Heading>{user.name}</Heading>
             <Flex direction={'column'} align={'center'}>
@@ -157,7 +171,7 @@ export default function Profile({ username, period, type }: FormData) {
                 key={item.name}
                 css={{
                   bc: index % 2 === 0 ? '$bg2' : '$bg3',
-                  '& td': { px: '$2', height: 42, borderLeft: '1px solid $bg1' },
+                  '& td': { px: '$2', height: 34, borderLeft: '1px solid $bg1' },
                 }}
               >
                 <Box as={'td'}>
@@ -200,12 +214,9 @@ export default function Profile({ username, period, type }: FormData) {
                   <Link href={item.url} target="_blank">
                     <Flex align={'center'} gap={'2'}>
                       {type === 'albums' && (
-                        <Image
-                          src={item.image[2]['#text']}
-                          alt=""
-                          width={42}
-                          height={42}
-                        />
+                        <Box css={{ size: 34, position: 'relative', fs: 0 }}>
+                          <Image src={item.image[0]['#text']} alt="" fill />
+                        </Box>
                       )}
 
                       <Text size={'5'} weight={600}>
