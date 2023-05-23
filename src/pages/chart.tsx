@@ -9,6 +9,7 @@ import { HiOutlineDownload } from 'react-icons/hi';
 import { trpc } from '@utils';
 import { GetServerSideProps } from 'next';
 import { Box, Flex, Heading, ProfileIcon, Text } from '@styles';
+import { spinner } from '@assets';
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { username, period, type } = ctx.query as FormData;
@@ -35,8 +36,8 @@ export default function Profile({ username, period, type }: FormData) {
   const [previousChart, setPreviousChart] = useState<Record<string, number>>();
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const { data: user } = trpc.user.useQuery({ username });
-  const { data: chart } = trpc.chart.useQuery(
+  const user = trpc.user.useQuery({ username });
+  const chart = trpc.chart.useQuery(
     { username, period, type },
     {
       staleTime: 1000 * 60 * 2.5,
@@ -54,8 +55,6 @@ export default function Profile({ username, period, type }: FormData) {
       },
     }
   );
-
-  console.log(chart);
 
   useEffect(() => {
     const data = window.localStorage.getItem(`${username}_${type}_${period}`);
@@ -81,8 +80,33 @@ export default function Profile({ username, period, type }: FormData) {
     });
   }, [ref, period, type, username]);
 
-  if (!chart) {
-    return <></>;
+  if (chart.isLoading || user.isLoading) {
+    return (
+      <Flex justify={'center'} align={'center'} css={{ height: '100vh', bc: '$bg1' }}>
+        <Image src={spinner} height={144} width={144} alt="" />
+      </Flex>
+    );
+  }
+
+  if (chart.isError || user.isError) {
+    setTimeout(() => {
+      router.push('/');
+    }, 3000);
+
+    return (
+      <Flex
+        justify={'center'}
+        align={'center'}
+        css={{ height: '100vh', bc: '$bg1', px: '$6' }}
+      >
+        <Box css={{ ta: 'center' }}>
+          <Heading gradient color={'red'} size="4">
+            User &quot;{username}&quot; not found :(
+          </Heading>
+          <Heading css={{ mt: '$3' }}>Being redirected in 3 seconds...</Heading>
+        </Box>
+      </Flex>
+    );
   }
 
   return (
@@ -105,36 +129,36 @@ export default function Profile({ username, period, type }: FormData) {
         <Box
           data-html2canvas-ignore
           as={'button'}
-          css={{ position: 'absolute', top: 20, left: 8 }}
+          css={{ position: 'absolute', top: 12, '@bp2': { top: 32 }, left: 8 }}
         >
           <BsArrowLeft size={36} onClick={() => router.push('/')} />
         </Box>
         <Box
           data-html2canvas-ignore
           as={'button'}
-          css={{ position: 'absolute', top: 20, right: 8 }}
+          css={{ position: 'absolute', top: 12, '@bp2': { top: 32 }, right: 8 }}
         >
           <HiOutlineDownload size={36} onClick={downloadChart} />
         </Box>
-        <Text
-          size={'10'}
+        <Heading
+          size={'5'}
           color={'red'}
           weight={'500'}
           css={{ ta: 'center', display: 'block' }}
         >
           Last.fm Charts
-        </Text>
-        <Link target="_blank" href={'https://last.fm/user/' + user.name}>
+        </Heading>
+        <Link target="_blank" href={'https://last.fm/user/' + user.data.name}>
           <Flex
             justify={'center'}
             align={'center'}
             gap={'6'}
             css={{ mt: '$3', mb: '$2' }}
           >
-            <ProfileIcon src={user.image[3]['#text']} alt="" css={{ size: 60 }} />
-            <Heading>{user.name}</Heading>
+            <ProfileIcon src={user.data.image[3]['#text']} alt="" css={{ size: 60 }} />
+            <Heading>{user.data.name}</Heading>
             <Flex direction={'column'} align={'center'}>
-              <Text weight={600}>{user.playcount}</Text>
+              <Text weight={600}>{user.data.playcount}</Text>
               <Text>scrobbles</Text>
             </Flex>
           </Flex>
@@ -142,7 +166,7 @@ export default function Profile({ username, period, type }: FormData) {
         <Heading css={{ ta: 'center' }}>
           {type.charAt(0).toUpperCase() + type.slice(1, type.length)} -{' '}
           {period !== 'overall'
-            ? `${period.charAt(0)} ${period.slice(1, period.length)}${
+            ? `Last ${period.charAt(0)} ${period.slice(1, period.length)}${
                 period !== '1month' ? 's' : ''
               }`
             : period.charAt(0).toUpperCase() + period.slice(1, period.length)}
@@ -165,7 +189,7 @@ export default function Profile({ username, period, type }: FormData) {
             </Box>
           </Box>
           <Box as={'tbody'}>
-            {chart.chart.map((item: any, index: number) => (
+            {chart.data.chart.map((item: any, index: number) => (
               <Box
                 as={'tr'}
                 key={item.name}
@@ -177,12 +201,16 @@ export default function Profile({ username, period, type }: FormData) {
                 <Box as={'td'}>
                   <Flex justify={'between'} align={'center'} gap={'2'}>
                     {previousChart?.[item.url] ? (
-                      previousChart[item.url] < item.playcount ? (
+                      previousChart[item.url] == item.playcount ? (
+                        <Text size={'2'}>(=)</Text>
+                      ) : previousChart[item.url] < item.playcount ? (
                         <Text size={'2'} color={'green'}>
                           (+{item.playcount - previousChart[item.url]})
                         </Text>
                       ) : (
-                        <Text size={'2'}>(=)</Text>
+                        <Text size={'2'} color={'red'}>
+                          (-{previousChart[item.url] - item.playcount})
+                        </Text>
                       )
                     ) : (
                       <Text size={'2'} color={'gold'}>
@@ -190,8 +218,8 @@ export default function Profile({ username, period, type }: FormData) {
                       </Text>
                     )}
                     <Link
-                      href={`${user.url}/library/music/${
-                        item.url.split('https://www.last.fm/music/')[1]
+                      href={`${user.data.url}/library/${
+                        item.url.split('https://www.last.fm/')[1]
                       }`}
                       target="_blank"
                     >
